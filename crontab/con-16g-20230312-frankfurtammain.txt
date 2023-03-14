@@ -1,6 +1,7 @@
 TZ=Asia/Shanghai
 
 54 0 * * * "/mnt/www/.acme.sh"/acme.sh --cron --home "/mnt/www/.acme.sh" > /dev/null
-35 13 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/backup/crontab && timeout 24h ./backup.sh > /var/log/crontab/backup/crontab.log 2>&1
-35 13 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/ali && timeout 24h ./lib/main.js > /var/log/crontab/ssl/ali.log 2>&1
-35 13 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/doge && timeout 24h ./lib/main.js > /var/log/crontab/ssl/doge.log 2>&1
+15 3 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/backup/crontab && timeout 24h ./backup.sh > /var/log/crontab/backup/crontab.log 2>&1
+25 3 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/ali && timeout 24h ./lib/main.js > /var/log/crontab/ssl/ali.log 2>&1
+35 3 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/doge && timeout 24h ./lib/main.js > /var/log/crontab/ssl/doge.log 2>&1
+19 14 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/freeom && timeout 24h ./run.sh > /var/log/crontab/freeom.log 2>&1
