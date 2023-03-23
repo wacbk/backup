@@ -1,10 +1,3 @@
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 15.2
--- Dumped by pg_dump version 15.2 (Ubuntu 15.2-1.pgdg22.04+1)
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -15,45 +8,29 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-ALTER TABLE IF EXISTS ONLY auth_mail."user" DROP CONSTRAINT IF EXISTS user_pkey;
-DROP TABLE IF EXISTS auth_mail."user";
-DROP SEQUENCE IF EXISTS auth_mail.user_id_seq;
-DROP FUNCTION IF EXISTS auth_mail.uid_by_mail_id(mail_id public.u64);
-DROP FUNCTION IF EXISTS auth_mail.signup(client_id public.u64, mail_id public.u64, ctime public.u64, password_hash bytea);
-DROP FUNCTION IF EXISTS auth_mail.mail_set(mail_id public.u64, uid public.u64);
+ALTER TABLE IF EXISTS ONLY "user" DROP CONSTRAINT IF EXISTS user_pkey;
+DROP TABLE IF EXISTS "user";
+DROP SEQUENCE IF EXISTS user_id_seq;
+DROP FUNCTION IF EXISTS uid_by_mail_id(mail_id public.u64);
+DROP FUNCTION IF EXISTS signup(client_id public.u64, mail_id public.u64, ctime public.u64, password_hash bytea);
+DROP FUNCTION IF EXISTS mail_set(mail_id public.u64, uid public.u64);
 DROP SCHEMA IF EXISTS auth_mail;
---
--- Name: auth_mail; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA auth_mail;
-
-
---
--- Name: mail_set(public.u64, public.u64); Type: FUNCTION; Schema: auth_mail; Owner: -
---
-
-CREATE FUNCTION auth_mail.mail_set(mail_id public.u64, uid public.u64) RETURNS void
+CREATE SCHEMA IF NOT EXISTS auth_mail;
+SET search_path TO auth_mail;
+CREATE OR REPLACE FUNCTION mail_set(mail_id public.u64, uid public.u64) RETURNS void
     LANGUAGE plpgsql
     AS $$
 BEGIN
-  DELETE FROM auth_mail.user
+  DELETE FROM user
   WHERE val = uid;
-INSERT INTO auth_mail.user
+INSERT INTO user
     VALUES (mail_id, uid)
   ON CONFLICT (id)
     DO UPDATE SET
       val = uid;
 END
 $$;
-
-
---
--- Name: signup(public.u64, public.u64, public.u64, bytea); Type: FUNCTION; Schema: auth_mail; Owner: -
---
-
-CREATE FUNCTION auth_mail.signup(client_id public.u64, mail_id public.u64, ctime public.u64, password_hash bytea) RETURNS public.u64
+CREATE OR REPLACE FUNCTION signup(client_id public.u64, mail_id public.u64, ctime public.u64, password_hash bytea) RETURNS public.u64
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -63,11 +40,11 @@ user_id u64;
 BEGIN
   -- JS_RETURN [0][0]
   SELECT val INTO user_id
-  FROM auth_mail.user
+  FROM user
   WHERE id = mail_id;
 IF user_id IS NULL THEN
     SELECT nextval('u.uid'::regclass) INTO user_id;
-INSERT INTO auth_mail.user
+INSERT INTO user
       VALUES (mail_id, user_id);
 END IF;
 INSERT INTO u.log(action, client_id, uid, ctime, val)
@@ -81,13 +58,7 @@ INSERT INTO u.password
 RETURN user_id;
 END
 $$;
-
-
---
--- Name: uid_by_mail_id(public.u64); Type: FUNCTION; Schema: auth_mail; Owner: -
---
-
-CREATE FUNCTION auth_mail.uid_by_mail_id(mail_id public.u64) RETURNS TABLE(user_id public.u64, hash bytea, ctime public.u64)
+CREATE OR REPLACE FUNCTION uid_by_mail_id(mail_id public.u64) RETURNS TABLE(user_id public.u64, hash bytea, ctime public.u64)
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -96,7 +67,7 @@ password_hash bytea;
 BEGIN
   -- JS_RETURN [0]
   SELECT val INTO user_id
-  FROM auth_mail.user
+  FROM user
   WHERE id = mail_id;
 IF user_id IS NOT NULL THEN
     RETURN QUERY
@@ -106,43 +77,17 @@ IF user_id IS NOT NULL THEN
 END IF;
 END
 $$;
-
-
---
--- Name: user_id_seq; Type: SEQUENCE; Schema: auth_mail; Owner: -
---
-
-CREATE SEQUENCE auth_mail.user_id_seq
+CREATE SEQUENCE user_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
 SET default_tablespace = '';
-
 SET default_table_access_method = heap;
-
---
--- Name: user; Type: TABLE; Schema: auth_mail; Owner: -
---
-
-CREATE TABLE auth_mail."user" (
-    id public.u64 DEFAULT nextval('auth_mail.user_id_seq'::regclass) NOT NULL,
+CREATE TABLE "user" (
+    id public.u64 DEFAULT nextval('user_id_seq'::regclass) NOT NULL,
     val public.u64 NOT NULL
 );
-
-
---
--- Name: user user_pkey; Type: CONSTRAINT; Schema: auth_mail; Owner: -
---
-
-ALTER TABLE ONLY auth_mail."user"
+ALTER TABLE ONLY "user"
     ADD CONSTRAINT user_pkey PRIMARY KEY (id);
-
-
---
--- PostgreSQL database dump complete
---
-
