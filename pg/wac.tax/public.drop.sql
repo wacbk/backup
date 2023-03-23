@@ -1,10 +1,3 @@
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 15.2
--- Dumped by pg_dump version 15.2 (Ubuntu 15.2-1.pgdg22.04+1)
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -15,52 +8,35 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-ALTER TABLE IF EXISTS ONLY public.os DROP CONSTRAINT IF EXISTS os_pkey;
-ALTER TABLE IF EXISTS ONLY public.os DROP CONSTRAINT IF EXISTS "os.name.ver";
-ALTER TABLE IF EXISTS ONLY public.device DROP CONSTRAINT IF EXISTS device_model_pkey;
-ALTER TABLE IF EXISTS ONLY public.device DROP CONSTRAINT IF EXISTS "device.vendor.model";
-ALTER TABLE IF EXISTS ONLY public.client_meta DROP CONSTRAINT IF EXISTS client_meta_pkey;
-ALTER TABLE IF EXISTS ONLY public.client_ip DROP CONSTRAINT IF EXISTS client_ip_pkey;
-ALTER TABLE IF EXISTS ONLY public.client_ip DROP CONSTRAINT IF EXISTS "client_ip.ctime";
-ALTER TABLE IF EXISTS ONLY public.browser DROP CONSTRAINT IF EXISTS browser_pkey;
-ALTER TABLE IF EXISTS ONLY public.browser DROP CONSTRAINT IF EXISTS "browser.name.ver";
-ALTER TABLE IF EXISTS public.os ALTER COLUMN id DROP DEFAULT;
-ALTER TABLE IF EXISTS public.client_meta ALTER COLUMN id DROP DEFAULT;
-ALTER TABLE IF EXISTS public.client_ip ALTER COLUMN id DROP DEFAULT;
-ALTER TABLE IF EXISTS public.browser ALTER COLUMN id DROP DEFAULT;
-DROP SEQUENCE IF EXISTS public.os_id_seq;
-DROP TABLE IF EXISTS public.os;
-DROP TABLE IF EXISTS public.device;
-DROP SEQUENCE IF EXISTS public.device_id_seq;
-DROP SEQUENCE IF EXISTS public.client_meta_id_seq;
-DROP TABLE IF EXISTS public.client_meta;
-DROP SEQUENCE IF EXISTS public.client_ip_id_seq;
-DROP TABLE IF EXISTS public.client_ip;
-DROP SEQUENCE IF EXISTS public.browser_id_seq;
-DROP TABLE IF EXISTS public.browser;
-DROP FUNCTION IF EXISTS public.drop_func(_name text, OUT functions_dropped integer);
-DROP FUNCTION IF EXISTS public.client_new(client_id public.u64, ip bytea, browser_name character varying, browser_ver public.u32, os_name character varying, os_ver public.u32, device_vendor character varying, device_model character varying);
-DROP SCHEMA IF EXISTS public;
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA public;
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
+ALTER TABLE IF EXISTS ONLY os DROP CONSTRAINT IF EXISTS os_pkey;
+ALTER TABLE IF EXISTS ONLY os DROP CONSTRAINT IF EXISTS "os.name.ver";
+ALTER TABLE IF EXISTS ONLY device DROP CONSTRAINT IF EXISTS device_model_pkey;
+ALTER TABLE IF EXISTS ONLY device DROP CONSTRAINT IF EXISTS "device.vendor.model";
+ALTER TABLE IF EXISTS ONLY client_meta DROP CONSTRAINT IF EXISTS client_meta_pkey;
+ALTER TABLE IF EXISTS ONLY client_ip DROP CONSTRAINT IF EXISTS client_ip_pkey;
+ALTER TABLE IF EXISTS ONLY client_ip DROP CONSTRAINT IF EXISTS "client_ip.ctime";
+ALTER TABLE IF EXISTS ONLY browser DROP CONSTRAINT IF EXISTS browser_pkey;
+ALTER TABLE IF EXISTS ONLY browser DROP CONSTRAINT IF EXISTS "browser.name.ver";
+ALTER TABLE IF EXISTS os ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS client_meta ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS client_ip ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS browser ALTER COLUMN id DROP DEFAULT;
+DROP SEQUENCE IF EXISTS os_id_seq;
+DROP TABLE IF EXISTS os;
+DROP TABLE IF EXISTS device;
+DROP SEQUENCE IF EXISTS device_id_seq;
+DROP SEQUENCE IF EXISTS client_meta_id_seq;
+DROP TABLE IF EXISTS client_meta;
+DROP SEQUENCE IF EXISTS client_ip_id_seq;
+DROP TABLE IF EXISTS client_ip;
+DROP SEQUENCE IF EXISTS browser_id_seq;
+DROP TABLE IF EXISTS browser;
+DROP FUNCTION IF EXISTS drop_func(_name text, OUT functions_dropped integer);
+DROP FUNCTION IF EXISTS client_new(client_id u64, ip bytea, browser_name character varying, browser_ver u32, os_name character varying, os_ver u32, device_vendor character varying, device_model character varying);
+CREATE SCHEMA IF NOT EXISTS public;
+SET search_path TO public;
 COMMENT ON SCHEMA public IS 'standard public schema';
-
-
---
--- Name: client_new(public.u64, bytea, character varying, public.u32, character varying, public.u32, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.client_new(client_id public.u64, ip bytea, browser_name character varying, browser_ver public.u32, os_name character varying, os_ver public.u32, device_vendor character varying, device_model character varying) RETURNS void
+CREATE OR REPLACE FUNCTION client_new(client_id u64, ip bytea, browser_name character varying, browser_ver u32, os_name character varying, os_ver u32, device_vendor character varying, device_model character varying) RETURNS void
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -127,13 +103,7 @@ INSERT INTO client_meta (client_id, os_id, browser_id, device_id, ctime)
     VALUES (client_id, os_id, browser_id, device_id, now);
 END;
 $$;
-
-
---
--- Name: drop_func(text); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.drop_func(_name text, OUT functions_dropped integer) RETURNS integer
+CREATE OR REPLACE FUNCTION drop_func(_name text, OUT functions_dropped integer) RETURNS integer
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -151,260 +121,90 @@ IF functions_dropped > 0 THEN
 END IF;
 END
 $$;
-
-
 SET default_tablespace = '';
-
 SET default_table_access_method = heap;
-
---
--- Name: browser; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.browser (
-    id public.u32 NOT NULL,
+CREATE TABLE browser (
+    id u32 NOT NULL,
     name character varying(255) NOT NULL,
-    ver public.u32 NOT NULL
+    ver u32 NOT NULL
 );
-
-
---
--- Name: browser_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.browser_id_seq
+CREATE SEQUENCE browser_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
---
--- Name: browser_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.browser_id_seq OWNED BY public.browser.id;
-
-
---
--- Name: client_ip; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.client_ip (
-    id public.u64 NOT NULL,
-    client_id public.u64 NOT NULL,
+ALTER SEQUENCE browser_id_seq OWNED BY browser.id;
+CREATE TABLE client_ip (
+    id u64 NOT NULL,
+    client_id u64 NOT NULL,
     ip bytea NOT NULL,
-    ctime public.u64 DEFAULT (date_part('epoch'::text, now()))::integer NOT NULL
+    ctime u64 DEFAULT (date_part('epoch'::text, now()))::integer NOT NULL
 );
-
-
---
--- Name: client_ip_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.client_ip_id_seq
+CREATE SEQUENCE client_ip_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
---
--- Name: client_ip_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.client_ip_id_seq OWNED BY public.client_ip.id;
-
-
---
--- Name: client_meta; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.client_meta (
-    id public.u64 NOT NULL,
-    device_id public.u32 NOT NULL,
-    browser_id public.u32 NOT NULL,
-    os_id public.u32 NOT NULL,
-    client_id public.u64 NOT NULL,
-    ctime public.u64 DEFAULT (date_part('epoch'::text, now()))::integer NOT NULL
+ALTER SEQUENCE client_ip_id_seq OWNED BY client_ip.id;
+CREATE TABLE client_meta (
+    id u64 NOT NULL,
+    device_id u32 NOT NULL,
+    browser_id u32 NOT NULL,
+    os_id u32 NOT NULL,
+    client_id u64 NOT NULL,
+    ctime u64 DEFAULT (date_part('epoch'::text, now()))::integer NOT NULL
 );
-
-
---
--- Name: client_meta_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.client_meta_id_seq
+CREATE SEQUENCE client_meta_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
---
--- Name: client_meta_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.client_meta_id_seq OWNED BY public.client_meta.id;
-
-
---
--- Name: device_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.device_id_seq
+ALTER SEQUENCE client_meta_id_seq OWNED BY client_meta.id;
+CREATE SEQUENCE device_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
---
--- Name: device; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.device (
-    id public.u32 DEFAULT nextval('public.device_id_seq'::regclass) NOT NULL,
+CREATE TABLE device (
+    id u32 DEFAULT nextval('device_id_seq'::regclass) NOT NULL,
     vendor character varying(255) NOT NULL,
     model character varying(255) NOT NULL
 );
-
-
---
--- Name: os; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.os (
-    id public.u64 NOT NULL,
+CREATE TABLE os (
+    id u64 NOT NULL,
     name character varying(255) NOT NULL,
-    ver public.u32 NOT NULL
+    ver u32 NOT NULL
 );
-
-
---
--- Name: os_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.os_id_seq
+CREATE SEQUENCE os_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-
-
---
--- Name: os_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.os_id_seq OWNED BY public.os.id;
-
-
---
--- Name: browser id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.browser ALTER COLUMN id SET DEFAULT nextval('public.browser_id_seq'::regclass);
-
-
---
--- Name: client_ip id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.client_ip ALTER COLUMN id SET DEFAULT nextval('public.client_ip_id_seq'::regclass);
-
-
---
--- Name: client_meta id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.client_meta ALTER COLUMN id SET DEFAULT nextval('public.client_meta_id_seq'::regclass);
-
-
---
--- Name: os id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.os ALTER COLUMN id SET DEFAULT nextval('public.os_id_seq'::regclass);
-
-
---
--- Name: browser browser.name.ver; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.browser
+ALTER SEQUENCE os_id_seq OWNED BY os.id;
+ALTER TABLE ONLY browser ALTER COLUMN id SET DEFAULT nextval('browser_id_seq'::regclass);
+ALTER TABLE ONLY client_ip ALTER COLUMN id SET DEFAULT nextval('client_ip_id_seq'::regclass);
+ALTER TABLE ONLY client_meta ALTER COLUMN id SET DEFAULT nextval('client_meta_id_seq'::regclass);
+ALTER TABLE ONLY os ALTER COLUMN id SET DEFAULT nextval('os_id_seq'::regclass);
+ALTER TABLE ONLY browser
     ADD CONSTRAINT "browser.name.ver" UNIQUE (name, ver);
-
-
---
--- Name: browser browser_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.browser
+ALTER TABLE ONLY browser
     ADD CONSTRAINT browser_pkey PRIMARY KEY (id);
-
-
---
--- Name: client_ip client_ip.ctime; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.client_ip
+ALTER TABLE ONLY client_ip
     ADD CONSTRAINT "client_ip.ctime" UNIQUE (ip, ctime);
-
-
---
--- Name: client_ip client_ip_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.client_ip
+ALTER TABLE ONLY client_ip
     ADD CONSTRAINT client_ip_pkey PRIMARY KEY (id);
-
-
---
--- Name: client_meta client_meta_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.client_meta
+ALTER TABLE ONLY client_meta
     ADD CONSTRAINT client_meta_pkey PRIMARY KEY (id);
-
-
---
--- Name: device device.vendor.model; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.device
+ALTER TABLE ONLY device
     ADD CONSTRAINT "device.vendor.model" UNIQUE (vendor, model);
-
-
---
--- Name: device device_model_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.device
+ALTER TABLE ONLY device
     ADD CONSTRAINT device_model_pkey PRIMARY KEY (id);
-
-
---
--- Name: os os.name.ver; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.os
+ALTER TABLE ONLY os
     ADD CONSTRAINT "os.name.ver" UNIQUE (name, ver);
-
-
---
--- Name: os os_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.os
+ALTER TABLE ONLY os
     ADD CONSTRAINT os_pkey PRIMARY KEY (id);
-
-
---
--- PostgreSQL database dump complete
---
-
