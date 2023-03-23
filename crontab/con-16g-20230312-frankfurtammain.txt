@@ -5,3 +5,4 @@ TZ=Asia/Shanghai
 40 3 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/freeom && timeout 24h ./run.sh > /var/log/crontab/freeom.log 2>&1
 30 3 */10 * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/ali && timeout 24h ./lib/main.js > /var/log/crontab/ssl/ali.log 2>&1
 30 3 */10 * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/doge && timeout 24h ./lib/main.js > /var/log/crontab/ssl/doge.log 2>&1
+43 17 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/backup/contabo && timeout 24h ./lib/snapshot.js > /var/log/crontab/backup/contabo.log 2>&1
