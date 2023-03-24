@@ -7,3 +7,5 @@ TZ=Asia/Shanghai
 30 3 */10 * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/ali && timeout 24h ./lib/main.js > /var/log/crontab/ssl/ali.log 2>&1
 30 3 */10 * * eval $(rtx env) && cd /root/wac.tax/ops/soft/ssl/doge && timeout 24h ./lib/main.js > /var/log/crontab/ssl/doge.log 2>&1
 2 19 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/backup/pg && timeout 24h ./exe.sh > /var/log/crontab/backup/pg.log 2>&1
+0 * * * * eval $(rtx env) && cd /root/wac.tax/ops/docker/wac && timeout 24h ./pgbackrest.sh wac-pg site incr > /var/log/crontab/pgbackrest/wac-pg/site.incr.log 2>&1
+30 3 */7 * * eval $(rtx env) && cd /root/wac.tax/ops/docker/wac && timeout 24h ./pgbackrest.sh wac-pg site full > /var/log/crontab/pgbackrest/wac-pg/site.full.log 2>&1
