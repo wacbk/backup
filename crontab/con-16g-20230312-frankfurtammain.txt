@@ -1,5 +1,4 @@
 TZ=Asia/Shanghai
-
 54 0 * * * "/mnt/www/.acme.sh"/acme.sh --cron --home "/mnt/www/.acme.sh" > /dev/null
 3 1 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/backup/crontab && timeout 24h ./backup.sh > /var/log/crontab/backup/crontab.log 2>&1
 40 3 * * * eval $(rtx env) && cd /root/wac.tax/ops/soft/freeom && timeout 24h ./run.sh > /var/log/crontab/freeom.log 2>&1
@@ -11,3 +10,4 @@ TZ=Asia/Shanghai
 30 3 */5 * * eval $(rtx env) && cd /root/wac.tax/ops/docker/docker-art-ol && timeout 24h ./pgbackrest.sh art-pg site full > /var/log/crontab/pgbackrest/art-pg/site.full.log 2>&1
 0 4 * * * eval $(rtx env) && cd /root/wac.tax/ops/docker/docker-gorse && timeout 24h ./pgbackrest.sh gorse-pg site incr > /var/log/crontab/pgbackrest/gorse-pg/site.incr.log 2>&1
 0 3 1 * * eval $(rtx env) && cd /root/wac.tax/ops/docker/docker-gorse && timeout 24h ./pgbackrest.sh gorse-pg site full > /var/log/crontab/pgbackrest/gorse-pg/site.full.log 2>&1
+11 16 * * * eval $(rtx env) && cd /root/wac.tax/pkg/bot/adult && timeout 24h ./rmtmp.sh > /var/log/crontab/adult.rmtmp.log 2>&1
